@@ -1,0 +1,15 @@
+/*设置字体图标的大小*/
+#tour-view .slide-icon{
+    font-size: 20em;
+}
+
+/*让slide-box满屏*/
+#tour-view .slider{
+    height: 100%;
+}
+
+/*让每个切换页中的内容居中，以及上边距*/
+#tour-view .slider-slide{
+    text-align: center;
+    padding-top: 100px;
+}

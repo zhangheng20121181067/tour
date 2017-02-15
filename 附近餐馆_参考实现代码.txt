@@ -1,0 +1,62 @@
+/***********************************************************************************************************************/
+14、查找“附近餐馆”信息：views/restaurants/restaurants.js
+    angular.module("myapp")
+        .controller("restaurantsCtrl", function ($scope, $http) {
+            // 创建一些scope变量
+            $scope.page = 0;    // 用来保存当前请求的页码
+            $scope.total = 1;   // 用来保存总页数
+            $scope.restaurants = [];
+
+            // 加载餐馆的方法
+            $scope.getRestaurants = function () {
+                $scope.page++;  // 页数++
+
+                var url = "restaurants.json";   // 请求的url
+                $http.get(url)
+                    .success(function (response) {
+                        angular.forEach(response.restaurants, function (restaurant) {
+                            $scope.restaurants.push(restaurant);
+                        });
+
+                        // 更新总页面数，基于API发送的值
+                        $scope.total = response.totalPages; // 示例数据中为30页
+                    })
+                    .finally(function () {
+                        // 广播事件，告诉无限滚动组件everything is done
+                        $scope.$broadcast("scroll.infiniteScrollComplete");
+                    });
+            };
+
+            $scope.getRestaurants();    // 加载时，从API加载第一页餐馆数据
+        });
+
+15、实现“附近餐馆”视图：views/restaurants/restaurants.html
+    <ion-view view-title="附近餐馆">
+        <ion-content>
+            <div class="list card" ng-repeat="restaurant in restaurants">
+                <div class="item">
+                    <h2>{{restaurant.name}}</h2>
+                    <p>{{restaurant.city}},{{restaurant.address}}</p>
+                </div>
+                <div class="item item-image">
+                    <img ng-src="{{restaurant.image_url}}"/>
+                </div>
+            </div>
+
+            <!--无限滚动:如果所有的页面都加载完了(例如，共30页)，则不再出现此组件-->
+            <ion-infinite-scroll on-infinite="getRestaurants()" ng-if="page<total" immediate-check="false"></ion-infinite-scroll>
+        </ion-content>
+    </ion-view>
+    说明：
+        ng-if和ng-show相似，区别在于：ng-if="false"，是元素不存在
+        <div ng-show="false"></div>    =>  display:none
+
+16、配置路由：js/app.js
+    $stateProvider.state("restaurants",{
+            url:"/restaurants",
+            templateUrl:"views/restaurants/restaurants.html",
+            controller:"restaurantsCtrl"
+        });
+
+17、在index.html的header部分引入restaurants.js文件：
+       <script src="views/restaurants/restaurants.js"></script>
